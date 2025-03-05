@@ -1,39 +1,34 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from 'react-native';
+import { ReactNode } from 'react';
+import { colors } from '../src/utils/color';
+function CustomLayout({ children }: { children: ReactNode }) {
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+  const currentColors = isDarkMode ? colors.dark : colors.light;
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar  backgroundColor={currentColors.statusbarColor} style='light' />
+        {children}
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    <CustomLayout>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="Login" />
+        <Stack.Screen name="SignUp" />
+        <Stack.Screen name="(tab)" /> {/* Tabs (Main App) */}
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </CustomLayout>
   );
 }
